@@ -79,7 +79,7 @@ print args.texte
 Start_code = chr(0xa5) +chr(0xed)
 E_C_insert = chr(0x0d)+ chr(0x0a) 	# end code for insert
 
-ser = serial.Serial (DisplayPort, 57600, timeout=0)
+ser = serial.Serial (DisplayPort, 57600, timeout=1)
 
 cmd_send_display = Start_code + chr(0x10) + chr(DisplayID) + chr(DisplayOrder) + chr(DisplayFontColor) + chr(DisplaySpeed) + chr(DisplayMode) + chr(DisplayFont)
 cmd_send_display = cmd_send_display + args.texte
@@ -125,5 +125,12 @@ ser.open()
 if ser.isOpen:
 	print"send command"
 	ser.write(cmd_send_display)
+	s = ser.read(100)
+	print "----------------"
+#	print s
+	for i in range(0,len(s)):
+		print hex(ord(s[i]))
+		i = i +1
+	print "----------------"
 	ser.close
 
