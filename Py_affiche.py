@@ -10,13 +10,14 @@
 
 import argparse
 import serial
+import time
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("texte", help="display the string you use here")
 parser.add_argument("-p", "--port", help="selected port - default /dev/ttyUSB0")
 parser.add_argument("-id", "--displayID", help=" Display ID - default 1", type=int)
 parser.add_argument("-o", "--order", help="Order to executute - default Insert text to display")
-
 parser.add_argument("-fc","--fontcolor",help="color to display 1: red 2: green 3: yellow - default red", type=int) 
 parser.add_argument("-s", "--speed",help="display speed, 0 -> 255", type=int) 
 parser.add_argument("-m","--mode",help="display mode 01: shift left 02: Instant 03: shift up 05: scroll left", type=int)
@@ -27,7 +28,6 @@ args = parser.parse_args()
 
 
 if args.port:
-	print "Port: ", args.port
 	DisplayPort = args.port 
 else:
 	DisplayPort = "/dev/ttyUSB0" # default port
@@ -68,6 +68,7 @@ else:
 	else:
 		DisplayFont = 0
 
+print"Port:      ",DisplayPort
 print"Order:     ",DisplayOrder
 print"FontColor: ",DisplayFontColor
 print"Speed:     ",DisplaySpeed
@@ -79,7 +80,15 @@ print args.texte
 Start_code = chr(0xa5) +chr(0xed)
 E_C_insert = chr(0x0d)+ chr(0x0a) 	# end code for insert
 
-ser = serial.Serial (DisplayPort, 57600, timeout=1)
+# ser = serial.Serial (DisplayPort, 57600, timeout=1)
+ser = serial.Serial()
+ser.port=DisplayPort
+ser.baudrate=57600
+ser.bytesize=8
+ser.stopbits=1
+ser.parities=serial.PARITY_NONE
+ser.timeout=1
+
 
 cmd_send_display = Start_code + chr(0x10) + chr(DisplayID) + chr(DisplayOrder) + chr(DisplayFontColor) + chr(DisplaySpeed) + chr(DisplayMode) + chr(DisplayFont)
 cmd_send_display = cmd_send_display + args.texte
@@ -121,10 +130,16 @@ for i in range(0,len(cmd_send_display)):
 	print hex(ord(cmd_send_display[i]))
 	i = i +1
 
-ser.open()
+try:
+	ser.open()
+except serial.SerialException:
+	print"erreur sur l'ouverture du port"
+
 if ser.isOpen:
+	time.sleep(1)
 	print"send command"
 	ser.write(cmd_send_display)
+	ser.flush()
 	s = ser.read(100)
 	print "----------------"
 #	print s
