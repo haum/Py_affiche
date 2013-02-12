@@ -50,10 +50,7 @@ else:
 if args.speed:
 	DisplaySpeed = args.speed
 else:
-	if args.speed != 0:
-		DisplaySpeed = 127
-	else:
-		DisplaySpeed = 0
+	DisplaySpeed = 0
 
 if args.mode:
 	DisplayMode = args.mode
@@ -86,7 +83,7 @@ ser.port=DisplayPort
 ser.baudrate=57600
 ser.bytesize=8
 ser.stopbits=1
-ser.parities=serial.PARITY_NONE
+ser.parity=serial.PARITY_EVEN
 ser.timeout=1
 
 
@@ -126,26 +123,28 @@ cmd_send_display = cmd_send_display + verifcode_str + chr (0xae)
 print "----------------"
 
 ## print cmd_send_display
+"""
 for i in range(0,len(cmd_send_display)):
 	print hex(ord(cmd_send_display[i]))
 	i = i +1
-
+"""
+ 
 try:
 	ser.open()
 except serial.SerialException:
 	print"erreur sur l'ouverture du port"
 
 if ser.isOpen:
-	time.sleep(1)
 	print"send command"
 	ser.write(cmd_send_display)
 	ser.flush()
 	s = ser.read(100)
 	print "----------------"
-#	print s
+	"""
+	print s
 	for i in range(0,len(s)):
 		print hex(ord(s[i]))
 		i = i +1
 	print "----------------"
+	"""
 	ser.close
-
